@@ -1,5 +1,7 @@
 # LeGO-LOAM
 
+Built on RobustFieldAutonomyLab/LeGO-LOAM commit f61b97f200e4612022833c6be19d34cbcd055871 with changes from facontidavide/LeGO-LOAM-BOR commit ee69f204f0fb83a1ec379af0315dd1b8a2aaaf65 with changes to add the ability to bring and unlimted number of auxilary dimensions from original LiDAR data and whatever other data is wanted to be channels in the output map. Changes have also been made to more easily implement Ouster LiDARs, this being transforming the LiDAR point cloud before using it for mapping.
+
 This repository contains code for a lightweight and ground optimized lidar odometry and mapping (LeGO-LOAM) system for ROS compatible UGVs. The system takes in point cloud  from a Velodyne VLP-16 Lidar (palced horizontal) and optional IMU data as inputs. It outputs 6D pose estimation in real-time. A demonstration of the system can be found here -> https://www.youtube.com/watch?v=O3tz_ftHV48
 <!--
 [![Watch the video](/LeGO-LOAM/launch/demo.gif)](https://www.youtube.com/watch?v=O3tz_ftHV48)
