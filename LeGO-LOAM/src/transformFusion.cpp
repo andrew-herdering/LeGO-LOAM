@@ -207,6 +207,7 @@ public:
         laserOdometry2.pose.pose.position.x = transformMapped[3];
         laserOdometry2.pose.pose.position.y = transformMapped[4];
         laserOdometry2.pose.pose.position.z = transformMapped[5];
+
         pubLaserOdometry2.publish(laserOdometry2);
 
         laserOdometryTrans2.stamp_ = laserOdometry->header.stamp;
