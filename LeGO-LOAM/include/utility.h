@@ -178,7 +178,7 @@ inline void downSizeCustomPoint(pcl::VoxelGrid<pcl::PointXYZI> downSizeFilter, p
   vector<pcl::PCLPointField> fields;
   pcl::getFields<PointType>(fields);
   
-  const int K = 5;
+  const float radius = sqrt(pow(downSizeFilter.getLeafSize()[0], 2) + pow(downSizeFilter.getLeafSize()[1], 2) + pow(downSizeFilter.getLeafSize()[2], 2)) / 2.0;
   outputCloud->points.clear();
   outputCloud->points.resize(cloudDS->points.size());
   for(long i = 0; i < cloudDS->points.size(); i++) {
@@ -187,25 +187,26 @@ inline void downSizeCustomPoint(pcl::VoxelGrid<pcl::PointXYZI> downSizeFilter, p
     newPnt.y = cloudDS->points[i].y;
     newPnt.z = cloudDS->points[i].z;
     newPnt.ring = cloudDS->points[i].intensity;
-    vector<int> idxs(K);
-    vector<float> sqrdDists(K);
-    if(kdtree.nearestKSearch(cloudDS->points[i], K, idxs, sqrdDists) > 0) {
-      float sums[fields.size() - 4];
-      for(int j = 0; j < fields.size() - 4; j++) {
-        sums[j] = 0;
-      }
-      for(int j = 0; j < idxs.size(); j++) {
-        uint8_t *dataPnt = (uint8_t*)(inputCloud->points.data() + idxs[j]);
-        for(int k = 4; k < fields.size(); k++) {
-          sums[k - 4] += *((float*)(dataPnt + fields[k].offset));
+    vector<int> idxs;
+    vector<float> sqrdDists;
+    if(kdtree.radiusSearch(cloudDS->points[i], radius, idxs, sqrdDists) > 0) {
+      int closestColor = idxs[0];
+      for(long i = 0; i < idxs.size(); i++) {
+        int rgb = inputCloud->points[idxs[i]].rgb;
+        if(rgb != (255 << 16)) {
+          closestColor = idxs[i];
+          continue;
         }
       }
-      uint8_t *dataPnt = (uint8_t*)(&newPnt);
-      for(int j = 4; j < fields.size(); j++) {
-        *((float*)(dataPnt + fields[j].offset)) = sums[j - 4] / idxs.size();
+      
+      if(closestColor != -1) {
+        newPnt.rgb = inputCloud->points[closestColor].rgb;
+      } else {
+        newPnt.rgb = 255 << 16;
       }
     } else {
       ROS_ERROR("No nearest points in KDTree!");
+      newPnt.rgb = 255 << 16;
     }
     outputCloud->points[i] = newPnt;
   }
